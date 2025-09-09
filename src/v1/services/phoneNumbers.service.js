@@ -1,5 +1,5 @@
 const { PhoneNumber } = require("../models/phoneNumber.model");
-const { telegramService } = require("../services");
+// const { telegramService } = require("../services");
 
 module.exports.addPhoneNumbers = async (phoneNumbers) => {
   try {
@@ -34,9 +34,9 @@ module.exports.fetchAvailablePhoneNumber = async () => {
 
     // 2) Fallback: numbers whose lastCalled <= cutoff
     if (!phoneNumber) {
-      telegramService.sendMessage(
-        "⚠️ ALERT:\nAll phone numbers have been called recently.\n\n@thewinper"
-      );
+      // await telegramService.sendMessage(
+      //   "⚠️ ALERT:\nAll phone numbers have been called recently.\n\n@thewinper"
+      // );
 
       phoneNumber = await PhoneNumber.findOneAndUpdate(
         { lastCalled: { $lte: cutoff } },
