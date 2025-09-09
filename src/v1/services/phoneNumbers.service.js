@@ -20,23 +20,27 @@ module.exports.addPhoneNumbers = async (phoneNumbers) => {
 
 module.exports.getAvailablePhoneNumber = async () => {
   try {
+    const now = new Date();
     const cutoff = new Date(Date.now() - 13 * 60 * 1000); // 13 minutes ago
+    const updates = { $inc: { callCount: 1 }, lastCalled: now };
 
-    const phoneNumber = await PhoneNumber.findOneAndUpdate(
-      {
-        $or: [
-          { lastCalled: null }, // never called
-          { lastCalled: { $lte: cutoff } }, // last call was >13 mins ago
-        ],
-      },
-      {
-        $inc: { callCount: 1 },
-        lastCalled: new Date(),
-      },
-      { sort: { lastCalled: 1 }, new: true }
+    // 1) Highest priority: numbers never called
+    let phoneNumber = await PhoneNumber.findOneAndUpdate(
+      { lastCalled: null },
+      updates,
+      { sort: { createdAt: 1 }, new: true, upsert: false }
     );
 
-    return phoneNumber;
+    // 2) Fallback: numbers whose lastCalled <= cutoff
+    if (!phoneNumber) {
+      phoneNumber = await PhoneNumber.findOneAndUpdate(
+        { lastCalled: { $lte: cutoff } },
+        updates,
+        { sort: { lastCalled: 1 }, new: true, upsert: false }
+      );
+    }
+
+    return phoneNumber; // may be null if none available
   } catch (err) {
     throw err;
   }
