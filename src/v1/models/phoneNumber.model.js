@@ -10,6 +10,7 @@ const phoneNumberSchema = new Schema(
       trim: true,
       minlength: 12,
       maxlength: 12,
+      unique: true,
     },
     lastCalled: {
       type: Date,
