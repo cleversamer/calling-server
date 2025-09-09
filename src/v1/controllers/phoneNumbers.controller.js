@@ -73,3 +73,45 @@ module.exports.getAvailablePhoneNumber = async (req, res, next) => {
     next(err);
   }
 };
+
+module.exports.removePhoneNumbers = async (req, res, next) => {
+  try {
+    const { phoneNumbers = [] } = req.body;
+
+    const normalize = (s) => String(s).trim();
+    const isValid = (pn) => /^44\d{10}$/.test(pn);
+
+    const normalized = phoneNumbers.map(normalize);
+    const invalid = normalized.filter((n) => !isValid(n));
+    const validUnique = Array.from(new Set(normalized.filter(isValid)));
+
+    if (validUnique.length === 0) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        status: "error",
+        success: false,
+        message: "No valid phone numbers provided. Format must be 44XXXXXXXXXX",
+      });
+    }
+
+    const deleteResult = await PhoneNumber.deleteMany({
+      number: { $in: validUnique },
+    });
+
+    const deleted = deleteResult?.deletedCount || 0;
+    const notFound = validUnique.length - deleted;
+
+    return res.status(httpStatus.OK).json({
+      status: "success",
+      success: true,
+      counts: {
+        received: phoneNumbers.length,
+        validUnique: validUnique.length,
+        deletedCount: deleted.length,
+        notFoundCount: notFound.length,
+        invalid: invalid.length,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};

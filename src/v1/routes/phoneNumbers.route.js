@@ -8,4 +8,6 @@ router.get(
   phoneNumbersController.getAvailablePhoneNumber
 );
 
+router.delete("/deleteList", phoneNumbersController.removePhoneNumbers);
+
 module.exports = router;

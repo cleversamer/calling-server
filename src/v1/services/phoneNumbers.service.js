@@ -50,3 +50,59 @@ module.exports.getAvailablePhoneNumber = async () => {
     throw err;
   }
 };
+
+module.exports = async (phoneNumbers = []) => {
+  try {
+    const normalize = (s) => String(s).trim();
+    const isValid = (pn) => /^44\d{10}$/.test(pn);
+
+    const normalized = phoneNumbers.map(normalize);
+    const invalid = normalized.filter((n) => !isValid(n));
+    const validUnique = [...new Set(normalized.filter(isValid))];
+
+    if (validUnique.length === 0) {
+      return {
+        deleted: [],
+        notFound: [],
+        invalid,
+        counts: {
+          received: phoneNumbers.length,
+          validUnique: 0,
+          deleted: 0,
+          notFound: 0,
+          invalid: invalid.length,
+        },
+      };
+    }
+
+    // Find which of the valid numbers actually exist
+    const existingDocs = await PhoneNumber.find(
+      { number: { $in: validUnique } },
+      { number: 1, _id: 0 }
+    ).lean();
+
+    const existingSet = new Set(existingDocs.map((d) => d.number));
+    const toDelete = [...existingSet];
+
+    if (toDelete.length) {
+      await PhoneNumber.deleteMany({ number: { $in: toDelete } });
+    }
+
+    const notFound = validUnique.filter((n) => !existingSet.has(n));
+
+    return {
+      deleted: toDelete,
+      notFound,
+      invalid,
+      counts: {
+        received: phoneNumbers.length,
+        validUnique: validUnique.length,
+        deleted: toDelete.length,
+        notFound: notFound.length,
+        invalid: invalid.length,
+      },
+    };
+  } catch (err) {
+    throw err;
+  }
+};
