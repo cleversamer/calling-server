@@ -36,10 +36,6 @@ module.exports.getAvailablePhoneNumber = async () => {
       { sort: { lastCalled: 1 }, new: true }
     );
 
-    if (!phoneNumber) {
-      throw new Error("No available phone numbers");
-    }
-
     return phoneNumber;
   } catch (err) {
     throw err;
