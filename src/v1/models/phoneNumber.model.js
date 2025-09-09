@@ -14,12 +14,10 @@ const phoneNumberSchema = new Schema(
     },
     lastCalled: {
       type: Date,
-      required: true,
       default: null,
     },
     callCount: {
       type: Number,
-      required: true,
       default: 0,
     },
   },
