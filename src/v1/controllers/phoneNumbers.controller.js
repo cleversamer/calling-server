@@ -76,8 +76,25 @@ module.exports.getAvailablePhoneNumber = async (req, res, next) => {
 
 module.exports.removePhoneNumbers = async (req, res, next) => {
   try {
-    const { phoneNumbers = [] } = req.body;
+    let { phoneNumbers = [] } = req.body;
 
+    // Allow sending "*" as a string instead of array
+    if (phoneNumbers === "*") phoneNumbers = ["*"];
+
+    // Case 1: delete all numbers
+    if (phoneNumbers.length === 1 && phoneNumbers[0] === "*") {
+      const deleteResult = await PhoneNumber.deleteMany({});
+      return res.status(httpStatus.OK).json({
+        status: "success",
+        success: true,
+        message: "All phone numbers deleted",
+        counts: {
+          deletedCount: deleteResult.deletedCount || 0,
+        },
+      });
+    }
+
+    // Case 2: delete specific numbers
     const normalize = (s) => String(s).trim();
     const isValid = (pn) => /^44\d{10}$/.test(pn);
 
