@@ -123,8 +123,8 @@ module.exports.removePhoneNumbers = async (req, res, next) => {
       counts: {
         received: phoneNumbers.length,
         validUnique: validUnique.length,
-        deletedCount: deleted.length,
-        notFoundCount: notFound.length,
+        deletedCount: deleted,
+        notFoundCount: notFound,
         invalid: invalid.length,
       },
     });
