@@ -19,7 +19,7 @@ module.exports.addPhoneNumbers = async (phoneNumbers) => {
   }
 };
 
-module.exports.getAvailablePhoneNumber = async () => {
+module.exports.fetchAvailablePhoneNumber = async () => {
   try {
     const now = new Date();
     const cutoff = new Date(Date.now() - 13 * 60 * 1000); // 13 minutes ago

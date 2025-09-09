@@ -53,7 +53,7 @@ module.exports.addPhoneNumbers = async (req, res, next) => {
 
 module.exports.getAvailablePhoneNumber = async (req, res, next) => {
   try {
-    const phoneNumber = await phoneNumbersService.getAvailablePhoneNumber();
+    const phoneNumber = await phoneNumbersService.fetchAvailablePhoneNumber();
 
     if (!phoneNumber) {
       return res.status(httpStatus.NOT_FOUND).json({
