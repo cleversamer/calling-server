@@ -3,12 +3,30 @@ const { clientSchema } = require("../models/phoneNumber.model");
 const httpStatus = require("http-status");
 const _ = require("lodash");
 
+const _ = require("lodash");
+const httpStatus = require("http-status");
+const { clientSchema } = require("../models/phoneNumber.model");
+const phoneNumbersService = require("../services/phoneNumbers.service");
+
 module.exports.addPhoneNumbers = async (req, res, next) => {
   try {
     const { phoneNumbers = [] } = req.body;
 
+    // filter valid phone numbers
+    const validPhoneNumbers = phoneNumbers.filter((pn) =>
+      /^44\d{10}$/.test(pn)
+    );
+
+    if (validPhoneNumbers.length === 0) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        status: "error",
+        success: false,
+        message: "No valid phone numbers provided. Format must be 44XXXXXXXXXX",
+      });
+    }
+
     const addedPhoneNumbers = await phoneNumbersService.addPhoneNumbers(
-      phoneNumbers
+      validPhoneNumbers
     );
 
     res.status(httpStatus.CREATED).json({
@@ -24,6 +42,16 @@ module.exports.addPhoneNumbers = async (req, res, next) => {
 module.exports.getAvailablePhoneNumber = async (req, res, next) => {
   try {
     const phoneNumber = await phoneNumbersService.getAvailablePhoneNumber();
+
+    if (!phoneNumber) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        status: "error",
+        success: false,
+        data: null,
+        message: "No available phone numbers",
+      });
+    }
+
     res.status(httpStatus.OK).json({
       status: "success",
       success: true,
