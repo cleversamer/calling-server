@@ -3,11 +3,6 @@ const { clientSchema } = require("../models/phoneNumber.model");
 const httpStatus = require("http-status");
 const _ = require("lodash");
 
-const _ = require("lodash");
-const httpStatus = require("http-status");
-const { clientSchema } = require("../models/phoneNumber.model");
-const phoneNumbersService = require("../services/phoneNumbers.service");
-
 module.exports.addPhoneNumbers = async (req, res, next) => {
   try {
     const { phoneNumbers = [] } = req.body;
