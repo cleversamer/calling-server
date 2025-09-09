@@ -29,7 +29,6 @@ const serverErrorSchema = new Schema(
       type: String,
       required: true,
       trim: true,
-      unique: true,
     },
     // The stack of the error
     stackTrace: {
